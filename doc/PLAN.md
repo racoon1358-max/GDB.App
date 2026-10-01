@@ -1,145 +1,95 @@
-# Migration Plan
+# Migration
 
-## Goal
+## todo
 
-Migrate the existing console application to an ASP.NET Core Web API while preserving its behavior, tests, and transaction semantics.
+1.  Versioning Plan (Github Repo)
+    1. Branch Strategy
+    1. Fork vs One repo with 3 Maintainers
+1.  Effort Estimate > Tasks
+1.  Timeline & Final Deadline
+    1. Achieve Result
+1.  Top Down : MultiDimension
+1.  Release Plan:
+    R0/R1: Plan action and create project structure folders.
+    R2: Copy code, create controllers with dependency injection, and run the application.
+    R3: Dependency Injection (DI) and removing factory patterns.
+    R4: Models and Validation.
+    R5: Exception handling, logging, middleware, and versioning.
+    R6: Authorization and authentication
+    R7: Docker Containerisation
 
-## 1. Planning and project assessment
+Goal: Console app -> ASP.NET Web API
 
-1. **Review the existing project**
-   - Inventory the solution, projects, source code, tests, database dependencies, and current build/run process.
-   - Identify external consumers, deployment requirements, technical risks, and any undocumented behavior.
-   - Record the current state as the baseline for migration and testing.
+1. Create a new solution structure.
 
-2. **Define the target outcome and success criteria**
-   - Confirm the required API features and which console-app behavior must be preserved.
-   - Agree on measurable completion criteria, including build, test, API behavior, security, and deployment expectations.
-   - Identify what is explicitly out of scope for this migration.
+2. Create the ASP.NET Core Web API project
+   - In Visual Studio, go to Add > New Project and choose ASP.NET Core Web API (.NET 8).
+   - Replace the console Program/Main with minimal hosting in Program.cs.
+   - Create controllers under Controllers/ that call the existing services.
 
-3. **Decide the repository and ownership model**
-   - Choose between a fork model and a single repository with multiple maintainers.
-   - Confirm repository ownership, permissions, review requirements, and contribution responsibilities.
+3. Move code into libraries while preserving logic
+   - Move domain models, enums, and exceptions unchanged into GDB.App.Domain.
+   - Move service classes and commands such as Deposit/Withdraw/TransactionCommandFactory into GDB.App.Application.
+   - Move AccountRepositoryDB, DataBaseConnectionManager, AccountQueries, and similar code into GDB.App.Infrastructure.
 
-4. **Define repository versioning and Git workflow**
-   - Choose the versioning strategy for the GitHub repository and releases.
-   - Define the branch strategy, pull-request process, and release workflow.
-   - Document how changes move from development through review, testing, and release.
+4. Use dependency injection and configuration
+   - Replace static singletons and hardcoded setup with DI.
+   - Create an IDbConnectionFactory in GDB.App.Infrastructure and inject it where needed.
+   - Replace AppLogger.CreateLogger<T>() with ILogger<T> in constructors.
+   - Register services in Program.cs and keep DB settings in appsettings.json.
 
-5. **Prepare the effort estimate**
-   - Break the migration into tasks covering architecture, implementation, database work, testing, CI, and rollout.
-   - Estimate each task and identify dependencies, risks, and work that can happen in parallel.
-   - Review the estimate with the people responsible for the work and update it as the project is assessed.
+5. Update DB code for async and DI
+   - AccountRepositoryDB currently uses DataBaseConnectionManager.GetConnection() and many synchronous calls; change it to:
+   - Accept IDbConnectionFactory and ILogger<AccountRepositoryDB> via the constructor.
+   - Use using var conn = \_dbFactory.CreateConnection(); await conn.OpenAsync(cancellationToken) where applicable.
+   - Use ExecuteNonQueryAsync, ExecuteReaderAsync, and ExecuteScalarAsync to avoid blocking the thread pool.
+   - Keep transaction logic, but prefer DbTransaction from the connection and await async calls.
+   - Example change to method signature: public async Task<IAccount?> GetAccountAsync(string accountNumber) returns nullable to match the repo contract.
 
-6. **Set the timeline**
-   - Use the project assessment and effort estimate to set milestone dates.
-   - Identify dependencies, review points, contingency time, and the final delivery deadline.
-   - Revisit the timeline when scope, risks, or estimates change.
+6. Define controller surface and routing
+   - Add lightweight controllers that accept DTOs and call service or command classes.
+   - Example endpoints:
+     - POST /api/accounts (create)
+     - GET /api/accounts/{id}
+     - POST /api/transactions/deposit
+     - POST /api/transactions/withdraw
+   - Use [ApiController] and model validation attributes on DTOs.
 
-7. **Plan across dimensions**
-   - Review the migration top-down across architecture, security, testing, operations, and rollout.
-   - Ensure each implementation milestone has corresponding validation and release activities.
+7. Add validation, error handling, and middleware
+   - Centralize exception-to-status-code mapping using middleware or an exception filter.
+   - Map domain exceptions:
+     - AccountException -> 404 Bad Request (or 400)
+     - InactiveAccountException -> 409 Conflict or 400
+     - InvalidAmountException -> 400 Bad Request
+   - Return consistent error DTOs (message, code).
+   - Add UseExceptionHandler/custom middleware to prevent stack trace leakage.
 
-## 2. Migration execution
+8. Preserve transaction semantics and atomicity
+   - Where multi-row updates (such as SaveAccounts with a transaction) are used, keep DB transactions.
+   - Consider converting critical read-modify-write flows to a concurrency-safe pattern (optimistic concurrency, SQL row version) or at least ensure transactions are used.
 
-### Step 1: Move the existing project as a single unit
+9. Logging, configuration, and secrets
+   - Use ILogger<T> and structured logging.
+   - Move database credentials to appsettings.json and environment variables, and use IConfiguration.
+   - Update Properties > launchSettings.json in the Web project for local debug ports.
 
-- Move the entire existing project into the new solution without splitting its code into separate projects.
-- Preserve its existing structure and behavior at this stage.
-- Confirm that the moved project builds and its existing tests pass.
+10. Tests and CI
+    - Update unit tests to reference class libraries instead of the console app project.
+    - Add integration tests using WebApplicationFactory<TEntryPoint> (Microsoft.AspNetCore.Mvc.Testing) to validate endpoint behavior end-to-end.
+    - Run all existing unit tests and add new API-level tests. Keep the original tests for service and command logic as-is; they should pass unchanged after refactor.
+    - Update the CI pipeline to:
+      - Build class libraries and the Web API.
+      - Run tests.
+      - Publish a Docker image if needed.
 
-### Step 2: Create and validate the ASP.NET Core Web API
+11. Gradual cutover and rollout
+    - Run the Web API locally and test manually with Swagger (add builder.Services.AddSwaggerGen()).
+    - Deploy to staging and run smoke tests against the endpoints.
+    - Once validated, route consumers to the API and retire the console app.
 
-- Create the ASP.NET Core Web API project targeting .NET 8.
-- Set up minimal hosting and validate that the API starts.
-- Add initial controllers that call the existing services.
-- Keep the existing project intact until the API host is working.
-
-### Step 3: Split code into libraries while preserving behavior
-
-- Move domain models, enums, exceptions, and value objects into `GDB.App.Domain`.
-- Move DTOs, services, and command classes into `GDB.App.Application`.
-- Move repositories, database connection management, and queries into `GDB.App.Infrastructure`.
-- Keep controllers in the Web API project.
-- Preserve existing behavior and run the relevant tests after each move.
-
-### Step 4: Introduce dependency injection and configuration
-
-- Replace static singletons and hardcoded setup with dependency injection.
-- Introduce an `IDbConnectionFactory` and inject it where database connections are required.
-- Replace `AppLogger.CreateLogger<T>()` with `ILogger<T>` through constructor injection.
-- Register application and infrastructure services in the API host.
-- Store non-secret settings in configuration; keep credentials out of source control and use environment variables or a development secrets store.
-
-### Step 5: Update database access for async and dependency injection
-
-- Inject `IDbConnectionFactory` and `ILogger<AccountRepositoryDB>` into `AccountRepositoryDB`.
-- Use asynchronous connection and command APIs where supported, passing cancellation tokens through public async methods.
-- Preserve transaction behavior and use database transactions for related updates.
-- Update repository contracts and implementations consistently, including nullable return values where appropriate.
-- Verify transaction behavior and database results with tests.
-
-### Step 6: Define the API surface and routing
-
-- Add lightweight controllers that accept DTOs and call application services or commands.
-- Define and document routes, including:
-  - `POST /api/accounts`
-  - `GET /api/accounts/{id}`
-  - `POST /api/transactions/deposit`
-  - `POST /api/transactions/withdraw`
-- Use `[ApiController]` and validation attributes on request DTOs.
-
-### Step 7: Add validation, error handling, and middleware
-
-- Centralize exception-to-HTTP-status mapping using middleware or an exception handler.
-- Map domain exceptions to appropriate status codes, such as not found, conflict, or bad request.
-- Return a consistent error response containing a message and error code.
-- Prevent stack traces and internal details from being returned to clients.
-
-### Step 8: Preserve transaction semantics and atomicity
-
-- Preserve database transactions for multi-row updates.
-- Review read-modify-write operations for concurrency risks.
-- Where needed, use optimistic concurrency or another database-supported concurrency strategy.
-- Add tests that verify atomicity and expected behavior when operations fail.
-
-### Step 9: Logging, configuration, and local development
-
-- Use `ILogger<T>` and structured logging.
-- Configure database settings through application configuration and environment-specific values.
-- Keep secrets out of committed configuration files.
-- Configure local launch settings and verify the API can be run locally.
-
-### Step 10: Tests and CI
-
-- Update unit-test references to target the appropriate class libraries.
-- Keep existing service and command tests passing unless a behavior change is explicitly approved.
-- Add API integration tests using `WebApplicationFactory<TEntryPoint>`.
-- Update CI to build the libraries and Web API, run tests, and publish a Docker image if required.
-
-### Step 11: Cutover and rollout
-
-- Run the API locally and validate endpoints using Swagger.
-- Deploy to staging and run smoke tests against the deployed API.
-- Confirm monitoring, configuration, and rollback expectations.
-- Once the API is validated, route consumers to it and retire the console application according to the agreed rollout plan.
-
-### Step 12: Optional modernization
-
-Evaluate these separately from the required migration scope:
-
-- Use an interface-driven `IDbConnectionFactory` and remove the static database connection manager.
-- Add cancellation tokens to public async APIs.
-- Introduce typed configuration classes for database settings.
-- Consider EF Core or Dapper if the benefits justify the added migration work; retaining ADO.NET is acceptable.
-- Add health checks.
-
-## 3. Release milestones
-
-- [ ] **R0:** Complete project assessment, governance decisions, estimates, timeline, and solution structure.
-- [ ] **R1:** Scaffold the ASP.NET Core Web API and validate basic host startup.
-- [ ] **R2:** Move the entire existing project as a single unit, then wire it into the solution and API execution flow.
-- [ ] **R3:** Introduce dependency injection and remove legacy factory-based wiring where appropriate.
-- [ ] **R4:** Refactor models and validation logic for the API layer.
-- [ ] **R5:** Add exception handling, logging, middleware, and API versioning.
-- [ ] **R6:** Implement the agreed authorization and authentication requirements.
-- [ ] **R7:** Containerize the application with Docker, if required by the deployment plan.
+12. Additional recommended improvements (opportunity to modernize)
+    - Introduce an interface-driven IDbConnectionFactory and remove the static DataBaseConnectionManager.
+    - Introduce cancellation tokens in public async APIs.
+    - Use typed configuration classes for DB settings.
+    - Consider EF Core or Dapper for more robust DB mapping (optional — keep the current ADO.NET code if minimal change is preferred).
+    - Add health checks (builder.Services.AddHealthChecks()).
