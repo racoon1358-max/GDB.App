@@ -1,14 +1,19 @@
-using GDB.WebApi.Application.Service.Implementation;
+using GDB.App.Infrastructure.Repositories;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+DataBaseProviderRegistration.Register();
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Singletons keep the dummy in-memory data available between Swagger calls.
-builder.Services.AddSingleton<AccountService>();
-builder.Services.AddSingleton<TransactionService>();
+builder.Services.AddTransient<GDB.App.Application.Controllers.AccountController>();
+builder.Services.AddTransient<GDB.App.Application.Controllers.TransactionController>();
 
 var app = builder.Build();
 

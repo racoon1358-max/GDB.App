@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GDB.WebApi.Application.Models;
+namespace GDB.WebApi.Models;
 
 public class DepositRequest
 {
@@ -31,11 +31,3 @@ public sealed class TransferFundsRequest
     [Range(typeof(decimal), "0.01", "79228162514264337593543950335")]
     public decimal Amount { get; init; }
 }
-
-public sealed record TransactionResponse(
-    Guid TransactionId,
-    string Type,
-    string? FromAccountNumber,
-    string? ToAccountNumber,
-    decimal Amount,
-    DateTimeOffset Timestamp);
