@@ -1,0 +1,47 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+.vs/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+publish/
+TestResults/
+coverage/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.trx
+*.coverage
+
+# IDE-local files
+*.code-workspace
+.history/
+
+# Local secrets and environment-specific configuration
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+logs/
+*.log
+log.txt
+log-from-file.txt
+
+# Frontend dependencies/build output, if present
+node_modules/
+dist/
+dist-ssr/
+
+# OS files
+.DS_Store
+Thumbs.db
