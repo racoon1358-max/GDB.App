@@ -1,0 +1,23 @@
+﻿using GDB.App.Domain;
+using GDB.App.Domain.Enums;
+using GDB.App.Domain.Models;
+
+namespace GDB.App.Test
+{
+    [TestClass]
+    public sealed class Test1
+    {
+        [TestInitialize]
+        public void TestIntialize()
+        {   
+            IAccount account = new AccountFactory.CreateAccount(
+                AccountType.Savings, "101", "Jhon", 22, AccountStatus.Active, "1111",
+                AccountType.Current
+                );
+        }
+        [TestMethod]
+        public void CheckIfAccountIsActive_account_throwInactiveException()
+        {
+        }
+    }
+}

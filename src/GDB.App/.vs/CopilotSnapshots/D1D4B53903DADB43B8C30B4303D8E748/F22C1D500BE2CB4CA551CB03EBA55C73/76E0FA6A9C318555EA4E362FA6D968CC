@@ -1,0 +1,20 @@
+﻿# Deposit Method Test Cases for `Account.Deposit`
+
+The table below lists test cases (positive, negative, edge, exceptions, boundary) for the `Deposit` method in `Domain/Models/Account.cs`.
+
+| serialNo | TestCaseId | Feature | TestCase Type | Input | Expected Value |
+|---:|---|---|---|---|---|
+| 1 | DEP-001 | Successful deposit | Positive | Account status: `Active`; Initial balance: 1,000.00; Amount: 500.00 | Balance becomes 1,500.00 |
+| 2 | DEP-002 | Exact deposit limit | Boundary-1 | Account status: `Active`; Initial balance: 0.00; Amount: 1,000,000.00 | Balance becomes 1,000,000.00 |
+| 3 | DEP-003 | Above deposit limit | Boundary+1 | Account status: `Active`; Initial balance: 0.00; Amount: 1,000,000.01 | Throws `InvalidAmountException` (exceeds deposit limit) |
+| 4 | DEP-004 | Large valid deposit | Edge | Account status: `Active`; Initial balance: 10,000.00; Amount: 999,999.99 | Balance becomes 1,009,999.99 |
+| 5 | DEP-005 | Zero amount | Negative | Account status: `Active`; Initial balance: 100.00; Amount: 0.00 | Throws `InvalidAmountException` (amount must be > 0) |
+| 6 | DEP-006 | Negative amount | Negative | Account status: `Active`; Initial balance: 100.00; Amount: -50.00 | Throws `InvalidAmountException` (amount must be > 0) |
+| 7 | DEP-007 | Inactive account | Exception | Account status: `Inactive`; Initial balance: 500.00; Amount: 100.00 | Throws `InactiveAccountException` (account not active) |
+| 8 | DEP-008 | Minimal positive amount | Edge | Account status: `Active`; Initial balance: 0.00; Amount: 0.01 | Balance becomes 0.01 |
+| 9 | DEP-009 | High precision decimal | Edge | Account status: `Active`; Initial balance: 1.2345; Amount: 0.0001 | Balance becomes 1.2346 (precise decimal addition) |
+| 10 | DEP-010 | Non-Active (Frozen) status | Exception | Account status: `Frozen`; Initial balance: 1,000.00; Amount: 100.00 | Throws `InactiveAccountException` (non-`Active` statuses treated inactive) |
+
+Notes:
+- Use exact exception types from `Domain/Exceptions` when asserting exceptions (for example `InvalidAmountException`, `InactiveAccountException`).
+- Validate both final `Balance` and that appropriate exceptions are thrown with expected messages where applicable.

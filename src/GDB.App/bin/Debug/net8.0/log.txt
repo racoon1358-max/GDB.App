@@ -1,0 +1,118 @@
+2026-09-23 16:23:50.868 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-23 16:57:20.270 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-23 16:58:55.374 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-23 17:08:07.102 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-23 17:55:37.513 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-23 17:56:45.745 +05:30 [INF] Deposited 200 to 1000002008
+2026-09-23 18:01:15.438 +05:30 [INF] Transferred 900 from 1000001001 to 1000001004
+2026-09-24 12:12:15.421 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:12:40.610 +05:30 [ERR] Failed to fetch account 1000001001
+System.Data.SqlClient.SqlException (0x80131904): Procedure or function 'get_account' expects parameter '@account_number', which was not supplied.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at GDB.App.Infrastructure.Repositories.Implementations.AccountRepositoryDB.GetAccountAsync(String accountNumber) in C:\Users\VigneshNadmin\OneDrive - Consilio\Desktop\gdb\Infrastructure\Repositories\Implementations\AccountRepositoryDB.cs:line 35
+ClientConnectionId:dfbf9e7c-a55f-4a1f-8dd9-2c1f046459de
+Error Number:201,State:4,Class:16
+2026-09-24 12:22:04.860 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:22:33.048 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:22:49.412 +05:30 [ERR] Failed to fetch account 1000001001
+System.Data.SqlClient.SqlException (0x80131904): Procedure or function 'get_account' expects parameter '@AccountNumber', which was not supplied.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at GDB.App.Infrastructure.Repositories.Implementations.AccountRepositoryDB.GetAccountAsync(String accountNumber) in C:\Users\VigneshNadmin\OneDrive - Consilio\Desktop\gdb\Infrastructure\Repositories\Implementations\AccountRepositoryDB.cs:line 35
+ClientConnectionId:264a4565-9180-47ad-9dc5-e8110f0e0fd0
+Error Number:201,State:4,Class:16
+2026-09-24 12:27:47.182 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:28:16.182 +05:30 [ERR] Failed to fetch account 1000001001
+System.Data.SqlClient.SqlException (0x80131904): Invalid object name 'ACCOUNT'.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at GDB.App.Infrastructure.Repositories.Implementations.AccountRepositoryDB.GetAccountAsync(String accountNumber) in C:\Users\VigneshNadmin\OneDrive - Consilio\Desktop\gdb\Infrastructure\Repositories\Implementations\AccountRepositoryDB.cs:line 35
+ClientConnectionId:89513dd4-34c1-4a1d-b245-0a6d9bacedfb
+Error Number:208,State:1,Class:16
+2026-09-24 12:32:45.662 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:32:59.539 +05:30 [ERR] Failed to fetch account 1000001001
+System.Data.SqlClient.SqlException (0x80131904): Procedure or function 'GetAccount' expects parameter '@AccountNumber', which was not supplied.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at GDB.App.Infrastructure.Repositories.Implementations.AccountRepositoryDB.GetAccountAsync(String accountNumber) in C:\Users\VigneshNadmin\OneDrive - Consilio\Desktop\gdb\Infrastructure\Repositories\Implementations\AccountRepositoryDB.cs:line 35
+ClientConnectionId:4eda4412-ef54-4222-9d5a-762dd2f76fcb
+Error Number:201,State:4,Class:16
+2026-09-24 12:35:06.522 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 12:35:12.992 +05:30 [ERR] Failed to fetch account 1000001001
+System.Data.SqlClient.SqlException (0x80131904): Procedure or function 'GetAccount' expects parameter '@AccountNumber', which was not supplied.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at GDB.App.Infrastructure.Repositories.Implementations.AccountRepositoryDB.GetAccountAsync(String accountNumber) in C:\Users\VigneshNadmin\OneDrive - Consilio\Desktop\gdb\Infrastructure\Repositories\Implementations\AccountRepositoryDB.cs:line 35
+ClientConnectionId:e2eec80d-c9f1-433c-8205-f0eae9ec9d10
+Error Number:201,State:4,Class:16
+2026-09-24 12:39:01.851 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 18:13:39.184 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-24 18:14:57.325 +05:30 [INF] Processing transaction "Transfer"
+2026-09-24 18:14:57.771 +05:30 [INF] Transferred ₹100.00 from 1000001001 to 1000001002
+2026-09-24 18:14:57.777 +05:30 [INF] Transaction "Transfer" completed successfully
+2026-09-25 11:22:24.077 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 12:34:02.063 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 12:34:45.165 +05:30 [INF] Processing transaction "Transfer"
+2026-09-25 12:34:45.586 +05:30 [INF] Transferred ₹1,000.00 from 1000001001 to 1000001002
+2026-09-25 12:34:45.593 +05:30 [INF] Transaction "Transfer" completed successfully
+2026-09-25 12:57:04.996 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 12:57:18.160 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 14:44:33.806 +05:30 [INF] Processing transaction "Transfer"
+2026-09-25 14:44:34.232 +05:30 [INF] Transferred ₹1,000.00 from 1000001001 to 1000001002
+2026-09-25 14:44:34.238 +05:30 [INF] Transaction "Transfer" completed successfully
+2026-09-25 14:59:27.721 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 16:31:40.347 +05:30 [INF] Registered DB provider System.Data.SqlClient
+2026-09-25 16:32:19.132 +05:30 [INF] Processing transaction "Transfer"
+2026-09-25 16:32:19.547 +05:30 [INF] Transferred ₹1,000.00 from 1000001001 to 1000001002
+2026-09-25 16:32:19.552 +05:30 [INF] Transaction "Transfer" completed successfully

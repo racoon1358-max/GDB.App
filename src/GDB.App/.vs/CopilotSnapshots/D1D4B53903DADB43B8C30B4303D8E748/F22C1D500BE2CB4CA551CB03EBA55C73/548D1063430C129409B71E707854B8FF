@@ -1,0 +1,44 @@
+﻿# Deposit Method Test Cases for `Account.Deposit`
+
+The table below lists test cases (positive, negative, edge, exceptions, boundary) for the `Deposit` method in `Domain/Models/Account.cs`.
+
+| serialNo | TestCaseId | Feature | TestCase Type | Input | Expected Value |
+|---:|---|---|---|---|---|
+| 1 | DEP-001 | Successful deposit | Positive | Account status: `Active`; Initial balance: 1,000.00; Amount: 500.00 | Balance becomes 1,500.00 |
+| 2 | DEP-002 | Exact deposit limit | Boundary-1 | Account status: `Active`; Initial balance: 0.00; Amount: 1,000,000.00 | Balance becomes 1,000,000.00 |
+| 3 | DEP-003 | Above deposit limit | Boundary+1 | Account status: `Active`; Initial balance: 0.00; Amount: 1,000,000.01 | Throws `InvalidAmountException` (exceeds deposit limit) |
+| 4 | DEP-004 | Large valid deposit | Edge | Account status: `Active`; Initial balance: 10,000.00; Amount: 999,999.99 | Balance becomes 1,009,999.99 |
+| 5 | DEP-005 | Zero amount | Negative | Account status: `Active`; Initial balance: 100.00; Amount: 0.00 | Throws `InvalidAmountException` (amount must be > 0) |
+| 6 | DEP-006 | Negative amount | Negative | Account status: `Active`; Initial balance: 100.00; Amount: -50.00 | Throws `InvalidAmountException` (amount must be > 0) |
+| 7 | DEP-007 | Inactive account | Exception | Account status: `Inactive`; Initial balance: 500.00; Amount: 100.00 | Throws `InactiveAccountException` (account not active) |
+| 8 | DEP-008 | Minimal positive amount | Edge | Account status: `Active`; Initial balance: 0.00; Amount: 0.01 | Balance becomes 0.01 |
+| 9 | DEP-009 | High precision decimal | Edge | Account status: `Active`; Initial balance: 1.2345; Amount: 0.0001 | Balance becomes 1.2346 (precise decimal addition) |
+| 10 | DEP-010 | Non-Active (Frozen) status | Exception | Account status: `Frozen`; Initial balance: 1,000.00; Amount: 100.00 | Throws `InactiveAccountException` (non-`Active` statuses treated inactive) |
+
+## CheckIfAccountIsActive Test Cases
+
+Tests for the `CheckIfAccountIsActive()` instance method on `Account` which returns `true` when `Status == AccountStatus.Active` and `false` otherwise.
+
+| serialNo | TestCaseId | Feature | TestCase Type | Input | Expected Value |
+|---:|---|---|---|---|---|
+| 11 | CAA-001 | Active status check | Positive | Account with `Status = AccountStatus.Active` | Returns `true` |
+| 12 | CAA-002 | Inactive status check | Negative | Account with `Status = AccountStatus.Inactive` | Returns `false` |
+| 13 | CAA-003 | Frozen status treated inactive | Edge | Account with `Status = AccountStatus.Frozen` (or any non-Active enum value) | Returns `false` |
+| 14 | CAA-004 | Default/uninitialized enum value | Edge | Account constructed with default `AccountStatus` (uninitialized enum) | Returns `false` (treat as not active) |
+| 15 | CAA-005 | Null account instance | Exception | Call `CheckIfAccountIsActive()` on a `null` account reference | Throws `NullReferenceException` (calling instance method on null) |
+
+## CheckAccountIsNull Test Cases
+
+These test cases cover scenarios where the account reference is `null` (caller should validate before instance method calls) and related behavior when `null` is passed to APIs that accept account objects.
+
+| serialNo | TestCaseId | Feature | TestCase Type | Input | Expected Value |
+|---:|---|---|---|---|---|
+| 16 | CAN-001 | Non-null reference | Positive | `account` variable references a valid `Account` instance | No exception; subsequent operations succeed |
+| 17 | CAN-002 | Null reference used for instance call | Exception | `Account account = null; account.Deposit(100m);` | Throws `NullReferenceException` |
+| 18 | CAN-003 | Null passed to service method (validated) | Exception | Service method receiving `Account account = null` and explicitly validates | Throws `ArgumentNullException` (recommended behavior if API validates input) |
+| 19 | CAN-004 | Null account when checking properties | Negative | `Account account = null; var x = account.Balance;` | Throws `NullReferenceException` |
+| 20 | CAN-005 | Defensive check before call | Positive | Caller checks `if (account == null)` before calling | No exception; appropriate handling (e.g., return error, throw meaningful exception) |
+
+Notes:
+- Tests 15 and 17/19 demonstrate runtime behavior when calling instance members on a null reference (NullReferenceException). When designing APIs, prefer explicit null-argument validation and throwing `ArgumentNullException` (see test 18).
+- Use exact exception types from `Domain/Exceptions` when applicable and assert exception messages if required.
