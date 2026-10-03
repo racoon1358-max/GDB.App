@@ -13,6 +13,9 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
 {
     public class TransactionRepositoryDB : ITransactionRepository
     {
+        private readonly IDbConnectionFactory _connections;
+
+        public TransactionRepositoryDB(IDbConnectionFactory connections) => _connections = connections;
         public List<ViewRecentTransactionsResponseDto> GetRecentTransactions(
             string accountNumber)
         {
@@ -20,7 +23,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
                 new List<ViewRecentTransactionsResponseDto>();
 
             using (DbConnection connection =
-                   DataBaseConnectionManager.GetConnection())
+                   _connections.CreateConnection())
             {
                 connection.Open();
 
@@ -109,7 +112,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
             decimal balanceAfterTo)
         {
             using (DbConnection connection =
-                   DataBaseConnectionManager.GetConnection())
+                   _connections.CreateConnection())
             {
                 connection.Open();
 

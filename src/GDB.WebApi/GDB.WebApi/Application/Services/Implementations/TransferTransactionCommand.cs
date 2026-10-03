@@ -18,27 +18,33 @@ namespace GDB.App.Application.Services.Implementations
     public class TransferTransactionCommand
     : ITransactionCommand<TranferFundsResponseDto>
     {
-        private readonly IAccountRepository _accountRepository;
-        private readonly ITransactionRepository _transactionRepository;
+        private readonly IMoneyMovementSessionFactory _sessions;
 
-        private static readonly ILogger _logger =
-            AppLogger.CreateLogger<TransferTransactionCommand>();
+        private readonly ILogger<TransferTransactionCommand> _logger;
 
         public TransferTransactionCommand(
-            IAccountRepository accountRepository,
-            ITransactionRepository transactionRepository)
+            IMoneyMovementSessionFactory sessions,
+            ILogger<TransferTransactionCommand> logger)
         {
-            _accountRepository = accountRepository;
-            _transactionRepository = transactionRepository;
+            _sessions = sessions;
+            _logger = logger;
         }
 
         public async Task<TranferFundsResponseDto> ExecuteAsync(
             TransactionDto transactionDto)
         {
-            // Get sender
-            IAccount fromAccount =
-                await _accountRepository.GetAccountAsync(
-                    transactionDto.FromAccount);
+            if (transactionDto.FromAccount == transactionDto.ToAccount)
+                throw new AccountException("Cannot transfer to the same account.");
+
+            await using var session = await _sessions.OpenAsync();
+            // Stable lock order prevents opposite-direction transfers deadlocking.
+            var first = string.CompareOrdinal(transactionDto.FromAccount, transactionDto.ToAccount) < 0
+                ? transactionDto.FromAccount : transactionDto.ToAccount;
+            var second = first == transactionDto.FromAccount
+                ? transactionDto.ToAccount : transactionDto.FromAccount;
+            var firstAccount = await session.GetAccountForUpdateAsync(first);
+            var secondAccount = await session.GetAccountForUpdateAsync(second);
+            IAccount fromAccount = first == transactionDto.FromAccount ? firstAccount : secondAccount;
 
             if (fromAccount == null)
             {
@@ -51,9 +57,7 @@ namespace GDB.App.Application.Services.Implementations
             }
 
             // Get receiver
-            IAccount toAccount =
-                await _accountRepository.GetAccountAsync(
-                    transactionDto.ToAccount);
+            IAccount toAccount = first == transactionDto.ToAccount ? firstAccount : secondAccount;
 
             if (toAccount == null)
             {
@@ -94,19 +98,18 @@ namespace GDB.App.Application.Services.Implementations
                 transactionDto.Amount);
 
             // Save both accounts
-            _accountRepository.SaveAccounts(
-                fromAccount,
-                toAccount);
+            await session.SaveBalanceAsync(fromAccount);
+            await session.SaveBalanceAsync(toAccount);
 
             // Save transaction
-            _transactionRepository.SaveTransaction(
+            await session.SaveTransactionAsync(
                 transactionDto.FromAccount,
                 transactionDto.ToAccount,
                 TransactionType.Transfer,
                 transactionDto.Amount,
-                TransactionStatus.Success,
                 fromAccount.Balance,
                 toAccount.Balance);
+            await session.CommitAsync();
 
             _logger.LogInformation(
     "Transferred {Amount} from {FromAccount} to {ToAccount}",

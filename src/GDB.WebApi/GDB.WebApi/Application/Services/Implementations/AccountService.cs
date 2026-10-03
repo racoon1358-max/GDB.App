@@ -52,7 +52,7 @@ namespace GDB.App.Application.Services.Implementations
         /// <summary>
         /// Logger instance used for logging account service operations.
         /// </summary>
-        private static readonly ILogger _logger = AppLogger.CreateLogger<AccountService>();
+        private readonly ILogger<AccountService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountService"/> class.
@@ -62,10 +62,10 @@ namespace GDB.App.Application.Services.Implementations
         /// The repository is configured to use the database ("DB") as the data source,
         /// allowing for abstraction of the underlying data storage mechanism.
         /// </remarks>
-        public AccountService()
+        public AccountService(IAccountRepository accountRepository, ILogger<AccountService> logger)
         {
-            // Repository is created via factory pattern for loose coupling
-            _accountRepository = AccountRepositoryFactory.Create("DB");
+            _accountRepository = accountRepository;
+            _logger = logger;
         }
 
         /// <summary>

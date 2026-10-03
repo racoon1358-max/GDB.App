@@ -3,6 +3,26 @@
     internal static class AccountQueries
     {
         public const string GetAccount = "GetAccount";
+        // Lock account row through commit; transfer callers acquire locks in account-number order.
+        public const string GetAccountForUpdate = @"
+            SELECT a.AccountNumber, a.Name, a.Age, a.Balance, a.Pin,
+                   at.Code AS AccountType, ast.Code AS AccountStatus,
+                   ap.Code AS AccountPrivilege,
+                   sa.InterestRate AS SavingsInterestRate,
+                   sa.MinimumBalance AS SavingsMinimumBalance,
+                   ca.OverdraftLimit,
+                   fda.InterestRate AS FixedDepositInterestRate,
+                   fda.TenureMonths,
+                   sya.EmployerName, sya.InactiveMonths
+            FROM Accounts a WITH (UPDLOCK, HOLDLOCK)
+            INNER JOIN AccountTypes at ON a.AccountTypeId = at.AccountTypeId
+            INNER JOIN AccountStatuses ast ON a.AccountStatusId = ast.AccountStatusId
+            INNER JOIN AccountPrivileges ap ON a.AccountPrivilegeId = ap.AccountPrivilegeId
+            LEFT JOIN SavingsAccounts sa ON a.AccountId = sa.AccountId
+            LEFT JOIN CurrentAccounts ca ON a.AccountId = ca.AccountId
+            LEFT JOIN FixedDepositAccounts fda ON a.AccountId = fda.AccountId
+            LEFT JOIN SalaryAccounts sya ON a.AccountId = sya.AccountId
+            WHERE a.AccountNumber = @AccountNumber";
         //public const string GetAccount = @"
         //    SELECT
         //        a.AccountId,

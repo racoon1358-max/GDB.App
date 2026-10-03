@@ -18,13 +18,10 @@ namespace GDB.App.Application.Services.Implementations
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
 
-        public TransactionQueryService()
+        public TransactionQueryService(IAccountRepository accountRepository, ITransactionRepository transactionRepository)
         {
-            _accountRepository =
-                AccountRepositoryFactory.Create("DB");
-
-            _transactionRepository =
-                TransactionRepositoryFactory.Create("DB");
+            _accountRepository = accountRepository;
+            _transactionRepository = transactionRepository;
         }
 
 

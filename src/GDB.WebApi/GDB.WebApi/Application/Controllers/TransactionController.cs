@@ -10,13 +10,10 @@ namespace GDB.App.Application.Controllers
         private readonly ITransactionService _transactionService;
         private readonly ITransactionQueryService _transactionQueryService;
 
-        public TransactionController()
+        public TransactionController(ITransactionService transactionService, ITransactionQueryService transactionQueryService)
         {
-            _transactionService =
-                TransactionServiceFactory.Create();
-
-            _transactionQueryService =
-                TransactionQueryServiceFactory.Create();
+            _transactionService = transactionService;
+            _transactionQueryService = transactionQueryService;
         }
 
         public async Task<DepositResponseDto> DepositAsync(

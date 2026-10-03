@@ -18,25 +18,24 @@ namespace GDB.App.Application.Services.Implementations
     public class DepositTransactionCommand
         : ITransactionCommand<DepositResponseDto>
     {
-        private readonly IAccountRepository _accountRepository;
-        private readonly ITransactionRepository _transactionRepository;
+        private readonly IMoneyMovementSessionFactory _sessions;
 
-        private static readonly ILogger _logger =
-            AppLogger.CreateLogger<DepositTransactionCommand>();
+        private readonly ILogger<DepositTransactionCommand> _logger;
 
         public DepositTransactionCommand(
-            IAccountRepository accountRepository,
-            ITransactionRepository transactionRepository)
+            IMoneyMovementSessionFactory sessions,
+            ILogger<DepositTransactionCommand> logger)
         {
-            _accountRepository = accountRepository;
-            _transactionRepository = transactionRepository;
+            _sessions = sessions;
+            _logger = logger;
         }
 
         public async Task<DepositResponseDto> ExecuteAsync(
             TransactionDto transactionDto)
         {
+            await using var session = await _sessions.OpenAsync();
             IAccount account =
-                await _accountRepository.GetAccountAsync(
+                await session.GetAccountForUpdateAsync(
                     transactionDto.AccountNumber);
 
             if (account == null)
@@ -53,19 +52,17 @@ namespace GDB.App.Application.Services.Implementations
             account.Deposit(transactionDto.Amount);
 
             // Update account balance
-            _accountRepository.UpdateBalance(
-                transactionDto.AccountNumber,
-                account.Balance);
+            await session.SaveBalanceAsync(account);
 
             // Save transaction record
-            _transactionRepository.SaveTransaction(
+            await session.SaveTransactionAsync(
                 null,
                 transactionDto.AccountNumber,
                 TransactionType.Deposit,
                 transactionDto.Amount,
-                TransactionStatus.Success,
                 0,
                 account.Balance);
+            await session.CommitAsync();
 
             _logger.LogInformation(
     "Deposited {Amount} to {AccountNumber}",
