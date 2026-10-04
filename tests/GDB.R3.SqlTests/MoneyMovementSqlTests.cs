@@ -19,6 +19,7 @@ public sealed class MoneyMovementSqlTests
         if (ConnectionString is null) throw new InvalidOperationException("Set GDB_R3_TEST_CONNECTION to a disposable test database.");
         await using var fixture = await Fixture.CreateAsync(ConnectionString);
         var original = (await fixture.Accounts.GetAccountAsync(fixture.From))!.Balance;
+        var originalTransactions = await fixture.CountTransactionsAsync();
 
         await Assert.ThrowsAnyAsync<DbException>(async () =>
         {
@@ -32,6 +33,7 @@ public sealed class MoneyMovementSqlTests
         });
 
         Assert.Equal(original, (await fixture.Accounts.GetAccountAsync(fixture.From))!.Balance);
+        Assert.Equal(originalTransactions, await fixture.CountTransactionsAsync());
     }
 
     [Fact]
@@ -52,6 +54,8 @@ public sealed class MoneyMovementSqlTests
 
         await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => Withdraw()));
         Assert.Equal(500m, (await fixture.Accounts.GetAccountAsync(fixture.From))!.Balance);
+        Assert.Equal(5, await fixture.CountTransactionsAsync(TransactionType.Withdraw));
+        Assert.Equal(5, await fixture.CountTransactionsAsync());
 
         async Task Transfer()
         {
@@ -69,6 +73,8 @@ public sealed class MoneyMovementSqlTests
         await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => Transfer()));
         Assert.Equal(450m, (await fixture.Accounts.GetAccountAsync(fixture.From))!.Balance);
         Assert.Equal(1050m, (await fixture.Accounts.GetAccountAsync(fixture.To))!.Balance);
+        Assert.Equal(5, await fixture.CountTransactionsAsync(TransactionType.Transfer));
+        Assert.Equal(10, await fixture.CountTransactionsAsync());
     }
 
     private sealed class Fixture : IAsyncDisposable
@@ -103,6 +109,31 @@ public sealed class MoneyMovementSqlTests
                 await fixture.DisposeAsync();
                 throw;
             }
+        }
+
+        public async Task<int> CountTransactionsAsync(TransactionType? type = null)
+        {
+            await using var connection = _connections.CreateConnection();
+            await connection.OpenAsync();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT COUNT(*) FROM Transactions AS t
+                INNER JOIN TransactionTypes AS tt ON tt.TransactionTypeId = t.TransactionTypeId
+                WHERE (t.FromAccountId IN (SELECT AccountId FROM Accounts WHERE AccountNumber IN (@From, @To))
+                    OR t.ToAccountId IN (SELECT AccountId FROM Accounts WHERE AccountNumber IN (@From, @To)))
+                    AND (@Type IS NULL OR tt.Code = @Type)";
+            foreach (var (name, value) in new[]
+            {
+                ("@From", (object)From), ("@To", To),
+                ("@Type", type is null ? DBNull.Value : type.Value.ToString().ToUpperInvariant())
+            })
+            {
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = name;
+                parameter.Value = value;
+                command.Parameters.Add(parameter);
+            }
+            return Convert.ToInt32(await command.ExecuteScalarAsync());
         }
 
         public async ValueTask DisposeAsync()
