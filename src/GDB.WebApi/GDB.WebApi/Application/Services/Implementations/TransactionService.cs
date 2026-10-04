@@ -8,8 +8,19 @@ namespace GDB.App.Application.Services.Implementations
 {
     public class TransactionService : ITransactionService
     {
-        private static readonly ILogger _logger =
-            AppLogger.CreateLogger<TransactionService>();
+        private readonly ILogger<TransactionService> _logger;
+        private readonly DepositTransactionCommand _deposit;
+        private readonly WithdrawTransactionCommand _withdraw;
+        private readonly TransferTransactionCommand _transfer;
+
+        public TransactionService(ILogger<TransactionService> logger, DepositTransactionCommand deposit,
+            WithdrawTransactionCommand withdraw, TransferTransactionCommand transfer)
+        {
+            _logger = logger;
+            _deposit = deposit;
+            _withdraw = withdraw;
+            _transfer = transfer;
+        }
 
         public async Task<TResponse> ProcessTransactionAsync<TResponse>(
             TransactionDto transactionDto,
@@ -19,17 +30,19 @@ namespace GDB.App.Application.Services.Implementations
                 "Processing transaction {TransactionType}",
                 transactionType);
 
-            ITransactionCommand<TResponse> command =
-                TransactionCommandFactory.Create<TResponse>(transactionType);
-
-            TResponse response =
-                await command.ExecuteAsync(transactionDto);
+            object response = transactionType switch
+            {
+                TransactionType.Deposit => await _deposit.ExecuteAsync(transactionDto),
+                TransactionType.Withdraw => await _withdraw.ExecuteAsync(transactionDto),
+                TransactionType.Transfer => await _transfer.ExecuteAsync(transactionDto),
+                _ => throw new ArgumentOutOfRangeException(nameof(transactionType))
+            };
 
             _logger.LogInformation(
                 "Transaction {TransactionType} completed successfully",
                 transactionType);
 
-            return response;
+            return (TResponse)response;
         }
     }
 }

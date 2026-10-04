@@ -10,15 +10,22 @@ using System.Data;
 
 namespace GDB.App.Infrastructure.Repositories.Implementations
 {
-    internal class AccountRepositoryDB : IAccountRepository
+    public class AccountRepositoryDB : IAccountRepository
     {
-        private static readonly ILogger _logger = AppLogger.CreateLogger<AccountRepositoryDB>();
+        private readonly ILogger<AccountRepositoryDB> _logger;
+        private readonly IDbConnectionFactory _connections;
+
+        public AccountRepositoryDB(IDbConnectionFactory connections, ILogger<AccountRepositoryDB> logger)
+        {
+            _connections = connections;
+            _logger = logger;
+        }
 
         public async Task<IAccount> GetAccountAsync(string accountNumber)
         {
             try
             {
-                using (DbConnection connection = DataBaseConnectionManager.GetConnection())
+                using (DbConnection connection = _connections.CreateConnection())
                 {
                     await connection.OpenAsync().ConfigureAwait(false);
 
@@ -60,7 +67,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
             try
             {
                 using (DbConnection connection =
-                       DataBaseConnectionManager.GetConnection())
+                       _connections.CreateConnection())
                 {
                     connection.Open();
 
@@ -359,7 +366,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
             try
             {
                 using DbConnection connection =
-                    DataBaseConnectionManager.GetConnection();
+                    _connections.CreateConnection();
 
                 connection.Open();
 
@@ -400,7 +407,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
             try
             {
                 using (DbConnection connection =
-                       DataBaseConnectionManager.GetConnection())
+                       _connections.CreateConnection())
                 {
                     connection.Open();
 
@@ -443,7 +450,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
                     new List<IAccount>();
 
                 using (DbConnection connection =
-                       DataBaseConnectionManager.GetConnection())
+                       _connections.CreateConnection())
                 {
                     connection.Open();
 
@@ -482,7 +489,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
             try
             {
                 using (DbConnection connection =
-                       DataBaseConnectionManager.GetConnection())
+                       _connections.CreateConnection())
                 {
                     connection.Open();
 
@@ -541,7 +548,7 @@ namespace GDB.App.Infrastructure.Repositories.Implementations
         }
 
 
-        private IAccount CreateAccount(
+        internal IAccount CreateAccount(
             DbDataReader reader)
         {
             string accountNumber =

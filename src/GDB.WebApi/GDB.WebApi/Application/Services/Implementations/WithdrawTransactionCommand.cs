@@ -18,25 +18,24 @@ namespace GDB.App.Application.Services.Implementations
     public class WithdrawTransactionCommand
         : ITransactionCommand<WithdrawResponseDto>
     {
-        private readonly IAccountRepository _accountRepository;
-        private readonly ITransactionRepository _transactionRepository;
+        private readonly IMoneyMovementSessionFactory _sessions;
 
-        private static readonly ILogger _logger =
-            AppLogger.CreateLogger<WithdrawTransactionCommand>();
+        private readonly ILogger<WithdrawTransactionCommand> _logger;
 
         public WithdrawTransactionCommand(
-            IAccountRepository accountRepository,
-            ITransactionRepository transactionRepository)
+            IMoneyMovementSessionFactory sessions,
+            ILogger<WithdrawTransactionCommand> logger)
         {
-            _accountRepository = accountRepository;
-            _transactionRepository = transactionRepository;
+            _sessions = sessions;
+            _logger = logger;
         }
 
         public async Task<WithdrawResponseDto> ExecuteAsync(
             TransactionDto transactionDto)
         {
+            await using var session = await _sessions.OpenAsync();
             IAccount account =
-                await _accountRepository.GetAccountAsync(
+                await session.GetAccountForUpdateAsync(
                     transactionDto.AccountNumber);
 
             if (account == null)
@@ -58,19 +57,17 @@ namespace GDB.App.Application.Services.Implementations
                 transactionDto.Pin);
 
             // Update balance
-            _accountRepository.UpdateBalance(
-                transactionDto.AccountNumber,
-                account.Balance);
+            await session.SaveBalanceAsync(account);
 
             // Save transaction
-            _transactionRepository.SaveTransaction(
+            await session.SaveTransactionAsync(
                 transactionDto.AccountNumber,
                 null,
                 TransactionType.Withdraw,
                 transactionDto.Amount,
-                TransactionStatus.Success,
                 account.Balance,
                 0);
+            await session.CommitAsync();
 
             _logger.LogInformation(
     "Withdrew {Amount} from {AccountNumber}",

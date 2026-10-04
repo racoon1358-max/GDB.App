@@ -17,9 +17,9 @@ namespace GDB.App.Application.Controllers
     public class AccountController
     {
         private IAccountService _accountService;
-        public AccountController()
+        public AccountController(IAccountService accountService)
         {
-            _accountService = AccountServiceFactory.Create();
+            _accountService = accountService;
         }
 
         //Boundary Class
