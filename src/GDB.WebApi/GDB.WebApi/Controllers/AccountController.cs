@@ -1,6 +1,8 @@
 using GDB.App.Application.Dtos;
 using GDB.App.Domain.Exceptions;
+using GDB.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using ApplicationAccountController = GDB.App.Application.Controllers.AccountController;
 
 namespace GDB.WebApi.Controllers;
@@ -15,7 +17,8 @@ public sealed class AccountController(ApplicationAccountController accountContro
         Ok(accountController.GetAllAccounts());
 
     [HttpGet("{accountNumber}/balance")]
-    public async Task<ActionResult<ViewBalanceResponseDto>> GetBalance(string accountNumber)
+    public async Task<ActionResult<ViewBalanceResponseDto>> GetBalance(
+        [FromRoute, RegularExpression(@"^[0-9]{10}$")] string accountNumber)
     {
         try
         {
@@ -28,7 +31,8 @@ public sealed class AccountController(ApplicationAccountController accountContro
     }
 
     [HttpGet("{accountNumber}")]
-    public async Task<ActionResult<ViewAccountResponseDto>> ViewAccount(string accountNumber)
+    public async Task<ActionResult<ViewAccountResponseDto>> ViewAccount(
+        [FromRoute, RegularExpression(@"^[0-9]{10}$")] string accountNumber)
     {
         try
         {
@@ -41,11 +45,11 @@ public sealed class AccountController(ApplicationAccountController accountContro
     }
 
     [HttpPost]
-    public ActionResult<CreateAccountResponseDto> CreateAccount(CreateAccountRequestDto request)
+    public ActionResult<CreateAccountResponseDto> CreateAccount(CreateAccountRequest request)
     {
         try
         {
-            var account = accountController.CreateAccount(request);
+            var account = accountController.CreateAccount(request.ToDto());
             return CreatedAtAction(
                 nameof(ViewAccount),
                 new { accountNumber = account.AccountNumber },
@@ -62,7 +66,8 @@ public sealed class AccountController(ApplicationAccountController accountContro
     }
 
     [HttpDelete("{accountNumber}")]
-    public async Task<ActionResult<CloseAccountResponseDto>> CloseAccount(string accountNumber)
+    public async Task<ActionResult<CloseAccountResponseDto>> CloseAccount(
+        [FromRoute, RegularExpression(@"^[0-9]{10}$")] string accountNumber)
     {
         try
         {
