@@ -2,6 +2,7 @@ using GDB.App.Application.Dtos;
 using GDB.App.Domain.Exceptions;
 using GDB.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using ApplicationTransactionController = GDB.App.Application.Controllers.TransactionController;
 
 namespace GDB.WebApi.Controllers;
@@ -35,7 +36,7 @@ public sealed class TransactionController(ApplicationTransactionController trans
 
     [HttpGet("{accountNumber}/recent")]
     public async Task<ActionResult<IReadOnlyCollection<ViewRecentTransactionsResponseDto>>>
-        ViewRecentTransactions(string accountNumber)
+        ViewRecentTransactions([FromRoute, RegularExpression(@"^[0-9]{10}$")] string accountNumber)
     {
         try
         {

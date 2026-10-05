@@ -7,7 +7,8 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
-builder.Services.AddScoped<IAccountRepository, AccountRepositoryDB>();
+builder.Services.AddScoped<AccountRepositoryDB>();
+builder.Services.AddScoped<IAccountRepository>(services => services.GetRequiredService<AccountRepositoryDB>());
 builder.Services.AddScoped<ITransactionRepository, TransactionRepositoryDB>();
 builder.Services.AddScoped<IMoneyMovementSessionFactory, SqlMoneyMovementSessionFactory>();
 builder.Services.AddScoped<IAccountService, AccountService>();
